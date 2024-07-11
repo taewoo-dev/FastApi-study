@@ -1,5 +1,6 @@
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from fastapi import Form
 
 
 class Todo(BaseModel):
@@ -8,8 +9,15 @@ class Todo(BaseModel):
 
     :param id,item : 클래스 변수로 타입힌팅과 함께 선언, None값이 할당되어있다
     """
-    id: int
+    id: Optional[int] = Field(default=None) # Field를 None으로 선언해줘야 문제가 발생하지 않는다
     item: str
+
+    @classmethod
+    def as_form(
+            cls,
+            item: str = Form(...)
+    ):
+        return cls(item=item)
 
     class Config:
         """
