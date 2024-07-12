@@ -32,6 +32,9 @@ class Todo(BaseModel):
 
 
 class TodoItem(BaseModel):
+    """
+    todoitem 클래스이다.
+    """
     item: str
 
     class Config:

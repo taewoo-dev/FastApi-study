@@ -35,7 +35,8 @@ async def retrieve_todos(request: Request) -> _TemplateResponse:
 
 
 @todo_router.get("/todo/{todo_id}")
-async def get_single_todo(request: Request, todo_id: int = Path(..., title="The ID of the todo to retrieve.")) -> _TemplateResponse:
+async def get_single_todo(request: Request,
+                          todo_id: int = Path(..., title="The ID of the todo to retrieve.")) -> _TemplateResponse:
     """
     get방식으로 todolist를 하나씩 보여주는 함수
     :param request:
@@ -44,7 +45,7 @@ async def get_single_todo(request: Request, todo_id: int = Path(..., title="The 
     """
     for todo in todo_list:
         if todo.id == todo_id:
-            return templates.TemplateResponse("todo.html",{
+            return templates.TemplateResponse("todo.html", {
                 "request": request,
                 "todo": todo
             })
@@ -101,3 +102,5 @@ async def delete_all_todo() -> dict:
     return {
         "message": "Todo deleted all successfully!!."
     }
+
+
