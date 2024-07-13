@@ -1,8 +1,10 @@
 """
 events.py: 이벤트 생성,변경,삭제 등의 처리를 위한 라우팅
 """
-from fastapi import APIRouter, Body, HTTPException, status
-from models.events import Event
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from database.connection import get_session
+from models.events import Event, EventUpdate
+from sqlmodel import select
 from typing import List
 
 event_router = APIRouter(
@@ -13,15 +15,18 @@ events = []
 
 
 @event_router.get("/", response_model=List[Event])
-async def retrieve_all_events() -> List[Event]:
+async def retrieve_all_events(session=Depends(get_session)) -> List[Event]:
+    statement = select(Event)
+    events = session.exec(statement).all()
     return events
 
 
 @event_router.get("/{id}", response_model=Event)
-async def retrieve_event(id: int) -> Event:
-    for event in events:
-        if event.id == id:
-            return event
+async def retrieve_event(id: int, session=Depends(get_session)) -> Event:
+    event = session.get(Event, id)
+    if event:
+        return event
+
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Event with supplied ID doesn't exist!!"
@@ -29,10 +34,14 @@ async def retrieve_event(id: int) -> Event:
 
 
 @event_router.post("/new")
-async def create_event(body: Event = Body(...)) -> dict:
-    events.append(body)
+async def create_event(new_event: Event,
+                       session=Depends(get_session)) -> dict:
+    session.add(new_event)
+    session.commit()
+    session.refresh(new_event)
+
     return {
-        "message": "Event created successfully!!"
+        "message": "Event created successfully."
     }
 
 
